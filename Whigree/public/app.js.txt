@@ -1,0 +1,128 @@
+const currency = (value) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0
+  }).format(value);
+
+const state = {
+  packages: [],
+  methods: []
+};
+
+const packageGrid = document.getElementById("packageGrid");
+const packageSelect = document.getElementById("packageSelect");
+const paymentSelect = document.getElementById("paymentSelect");
+const healthStatus = document.getElementById("healthStatus");
+const orderCount = document.getElementById("orderCount");
+const orderTableBody = document.getElementById("orderTableBody");
+const checkoutForm = document.getElementById("checkoutForm");
+const checkoutResult = document.getElementById("checkoutResult");
+
+const renderPackages = () => {
+  packageGrid.innerHTML = state.packages
+    .map(
+      (pkg) => `
+      <article class="card package-card">
+        <h3>${pkg.name}</h3>
+        <p>${pkg.robux} Robux</p>
+        <p class="price">${currency(pkg.price)}</p>
+        <p class="bonus">${pkg.bonus ? `Bonus ${pkg.bonus} Robux` : "Tanpa Bonus"}</p>
+      </article>`
+    )
+    .join("");
+
+  packageSelect.innerHTML = state.packages
+    .map((pkg) => `<option value="${pkg.id}">${pkg.robux} Robux - ${currency(pkg.price)}</option>`)
+    .join("");
+};
+
+const renderPaymentMethods = () => {
+  paymentSelect.innerHTML = state.methods
+    .map((method) => `<option value="${method}">${method}</option>`)
+    .join("");
+};
+
+const renderOrders = async () => {
+  const response = await fetch("/api/orders");
+  const data = await response.json();
+
+  orderCount.textContent = data.total;
+
+  orderTableBody.innerHTML = data.data.length
+    ? data.data
+        .map(
+          (order) => `
+        <tr>
+          <td>${order.id}</td>
+          <td>${order.username}</td>
+          <td>${order.package.robux} Robux</td>
+          <td>${currency(order.total)}</td>
+          <td><span class="status">${order.status}</span></td>
+        </tr>`
+        )
+        .join("")
+    : `<tr><td colspan="5">Belum ada order.</td></tr>`;
+};
+
+const init = async () => {
+  const [healthRes, packageRes, paymentRes] = await Promise.all([
+    fetch("/api/health"),
+    fetch("/api/packages"),
+    fetch("/api/payment-methods")
+  ]);
+
+  const health = await healthRes.json();
+  const packageData = await packageRes.json();
+  const paymentData = await paymentRes.json();
+
+  healthStatus.textContent = `${health.status.toUpperCase()} • ${new Date(health.now).toLocaleString(
+    "id-ID"
+  )}`;
+
+  state.packages = packageData.data;
+  state.methods = paymentData.data;
+
+  renderPackages();
+  renderPaymentMethods();
+  await renderOrders();
+};
+
+checkoutForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(checkoutForm);
+  const payload = Object.fromEntries(formData.entries());
+
+  checkoutResult.classList.remove("hidden");
+  checkoutResult.textContent = "Memproses checkout...";
+
+  const response = await fetch("/api/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    checkoutResult.innerHTML = `<p style="color:#ff8dad">❌ ${result.error}</p>`;
+    return;
+  }
+
+  checkoutResult.innerHTML = `
+    <h3>✅ Order Berhasil Dibuat</h3>
+    <p><strong>ID:</strong> ${result.data.id}</p>
+    <p><strong>Username:</strong> ${result.data.username}</p>
+    <p><strong>Total:</strong> ${currency(result.data.total)}</p>
+    <p><strong>Estimasi:</strong> ${result.data.estimate}</p>
+  `;
+
+  checkoutForm.reset();
+  await renderOrders();
+});
+
+init().catch((error) => {
+  healthStatus.textContent = "Server tidak merespons";
+  console.error(error);
+});

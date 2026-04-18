@@ -1,0 +1,22 @@
+{
+  "name": "robux-topup-modern-server",
+  "version": "1.0.0",
+  "description": "Website modern untuk top up Robux (demo) dengan Node.js + Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js"
+  },
+  "keywords": [
+    "robux",
+    "topup",
+    "express",
+    "website"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

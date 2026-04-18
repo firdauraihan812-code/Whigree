@@ -1,0 +1,90 @@
+const express = require("express");
+const path = require("path");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+const robuxPackages = [
+  { id: "rbx-80", name: "Starter", robux: 80, price: 15000, bonus: 0 },
+  { id: "rbx-400", name: "Popular", robux: 400, price: 69000, bonus: 20 },
+  { id: "rbx-800", name: "Best Value", robux: 800, price: 129000, bonus: 55 },
+  { id: "rbx-1700", name: "Pro", robux: 1700, price: 259000, bonus: 130 },
+  { id: "rbx-4500", name: "Ultimate", robux: 4500, price: 649000, bonus: 450 }
+];
+
+const paymentMethods = [
+  "QRIS",
+  "GoPay",
+  "OVO",
+  "DANA",
+  "BCA Virtual Account",
+  "Mandiri Virtual Account"
+];
+
+const orders = [];
+
+const formatOrderId = () => `ORD-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", service: "robux-topup", now: new Date().toISOString() });
+});
+
+app.get("/api/packages", (req, res) => {
+  res.json({ data: robuxPackages });
+});
+
+app.get("/api/payment-methods", (req, res) => {
+  res.json({ data: paymentMethods });
+});
+
+app.post("/api/checkout", (req, res) => {
+  const { username, packageId, paymentMethod, email } = req.body ?? {};
+
+  if (!username || !packageId || !paymentMethod || !email) {
+    return res.status(400).json({
+      error: "Field wajib diisi: username, packageId, paymentMethod, email"
+    });
+  }
+
+  const selectedPackage = robuxPackages.find((item) => item.id === packageId);
+  if (!selectedPackage) {
+    return res.status(404).json({ error: "Paket Robux tidak ditemukan" });
+  }
+
+  if (!paymentMethods.includes(paymentMethod)) {
+    return res.status(400).json({ error: "Metode pembayaran tidak tersedia" });
+  }
+
+  const order = {
+    id: formatOrderId(),
+    username,
+    email,
+    paymentMethod,
+    package: selectedPackage,
+    total: selectedPackage.price,
+    status: "Menunggu Pembayaran",
+    createdAt: new Date().toISOString(),
+    estimate: "1-5 menit"
+  };
+
+  orders.unshift(order);
+
+  return res.status(201).json({
+    message: "Checkout berhasil dibuat",
+    data: order
+  });
+});
+
+app.get("/api/orders", (req, res) => {
+  res.json({
+    total: orders.length,
+    data: orders.slice(0, 20)
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Robux Top Up server berjalan di http://localhost:${PORT}`);
+});

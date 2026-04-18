@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Whigree Robux Top Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="badge">🔥 Cepat • Aman • Otomatis</p>
+          <h1>Top Up Robux Instan dengan Tampilan Modern</h1>
+          <p class="subtitle">
+            Pilih paket, masukkan username Roblox, dan selesaikan pembayaran dalam beberapa klik.
+          </p>
+          <div class="hero-cta">
+            <a href="#order" class="btn btn-primary">Mulai Top Up</a>
+            <a href="#packages" class="btn btn-ghost">Lihat Paket</a>
+          </div>
+        </div>
+        <div class="card stats">
+          <h3>Status Server</h3>
+          <p id="healthStatus">Memuat status...</p>
+          <div class="stat-grid">
+            <div>
+              <p class="label">Transaksi Hari Ini</p>
+              <p class="value" id="orderCount">0</p>
+            </div>
+            <div>
+              <p class="label">Kecepatan Proses</p>
+              <p class="value">1-5 Menit</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="packages" class="section">
+        <div class="section-title">
+          <h2>Pilih Paket Robux</h2>
+          <p>Harga transparan dan ada bonus untuk paket tertentu.</p>
+        </div>
+        <div id="packageGrid" class="package-grid"></div>
+      </section>
+
+      <section id="order" class="section order-section">
+        <div class="section-title">
+          <h2>Form Checkout</h2>
+          <p>Isi data dengan benar agar proses top up berjalan lancar.</p>
+        </div>
+
+        <form id="checkoutForm" class="card form-grid">
+          <label>
+            Username Roblox
+            <input type="text" name="username" placeholder="contoh: PlayerKeren123" required />
+          </label>
+
+          <label>
+            Email
+            <input type="email" name="email" placeholder="email@domain.com" required />
+          </label>
+
+          <label>
+            Pilih Paket
+            <select name="packageId" id="packageSelect" required></select>
+          </label>
+
+          <label>
+            Metode Pembayaran
+            <select name="paymentMethod" id="paymentSelect" required></select>
+          </label>
+
+          <button class="btn btn-primary" type="submit">Checkout Sekarang</button>
+        </form>
+
+        <div id="checkoutResult" class="card result hidden"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Riwayat Order Terbaru</h2>
+          <p>Menampilkan simulasi order terbaru dari server.</p>
+        </div>
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Paket</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="orderTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>
+          © 2026 Whigree Top Up. Demo edukasi. Tidak terafiliasi resmi dengan Roblox Corporation.
+        </p>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
